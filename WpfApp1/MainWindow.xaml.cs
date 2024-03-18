@@ -22,7 +22,7 @@ namespace WpfApp1
     /// </summary>
     public partial class MainWindow : Window
     {
-
+        //Hier müssen die API Daten eingegeben werden, welche auf der Website zu finden sind
         private readonly string apiKey = "bdc3deebe51e80fe56b280899ea94922";
 
         private string requestURL = "https://api.openweathermap.org/data/2.5/weather";
@@ -32,30 +32,46 @@ namespace WpfApp1
         {
             InitializeComponent();
 
-            WeatherMapResponse result = GetWeatherData("Palma");
+            UpdateUI("Dortmund");
+        }
 
+        public void UpdateUI(string city)
+        {
+            //Funktionsaufruf mit Stadtangabe
+            WeatherMapResponse result = GetWeatherData(city);
+
+            //Standartbild
             string finalImage = "sun.png";
 
+            //Je nach Wetterlage wird ein passendes Bild als Hintergrund gesetzt
             if (result.weather[0].main.ToLower().Contains("cloud"))
             {
                 finalImage = "cloud.png";
-            } else if (result.weather[0].main.ToLower().Contains("rain"))
+            }
+            else if (result.weather[0].main.ToLower().Contains("rain"))
             {
                 finalImage = "rain.png";
-            } else if (result.weather[0].main.ToLower().Contains("snow"))
+            }
+            else if (result.weather[0].main.ToLower().Contains("snow"))
             {
                 finalImage = "snow.png";
             }
 
             backgroundImage.ImageSource = new BitmapImage(new Uri("Images/" + finalImage, UriKind.Relative));
 
+            //Temperaturanzeige
+            labelTemperature.Content = result.main.temp + "°C";
+
+            labelInfo.Content = result.weather[0].main;
         }
+
+
 
         public WeatherMapResponse GetWeatherData(string city)
         {
             HttpClient httpClient = new HttpClient();
 
-            
+
 
             //Hier wird die finale URL zusammengebaut
             var finalUri = requestURL + "?q=" + city + "&appid=" + apiKey + "&units=metric";
@@ -72,6 +88,10 @@ namespace WpfApp1
             return weatherMapResponse;
         }
 
-        
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            string query = textBoxQuery.Text;
+            UpdateUI(query);
+        }
     }
 }
